@@ -1,0 +1,39 @@
+name: 1 - OIDC Connection Test
+
+# 1. THE TRIGGER: When does this run?
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allows us to trigger it manually from the GitHub UI
+
+# 2. THE SECURITY INTENT: OIDC Permissions
+# This is the most critical part. We must explicitly grant GitHub Actions 
+# the permission to generate a temporary OIDC identity token.
+permissions:
+  id-token: write   # Required for requesting the JSON Web Token (JWT)
+  contents: read    # Required to checkout the repository code
+
+jobs:
+  test-aws-connection:
+    name: Authenticate to AWS
+    runs-on: ubuntu-latest # Our Ephemeral Runner (a fresh Linux VM)
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 3. THE HANDSHAKE: Assuming the Role
+      - name: Configure AWS Credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1 # Change this if your AWS environment is in a different region
+
+      # 4. THE VALIDATION: Proving who we are
+      - name: Verify AWS Identity
+        run: |
+          echo "Testing secure connection..."
+          # sts get-caller-identity is the AWS equivalent of "whoami"
+          aws sts get-caller-identity
+          echo "Connection successful! Zero static credentials used."
