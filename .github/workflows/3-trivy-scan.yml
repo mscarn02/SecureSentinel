@@ -19,15 +19,16 @@ jobs:
       - name: Run Trivy Vulnerability Scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'          # Scans the file system for dependency files
-          scan-ref: 'src/'         # Tells Trivy to only look in our source code folder
-          format: 'table'          # Outputs the vulnerabilities in a readable terminal table
-          exit-code: '1'           # CRITICAL: If vulnerabilities are found, fail the pipeline
-          ignore-unfixed: true     # Only alert on vulnerabilities that actually have a patch available
-          severity: 'CRITICAL,HIGH' # Only break the build for severe flaws
+          scan-type: 'fs'
+          scan-ref: 'src/'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
 
-      - name: Send Discord ALert on Faliure
-        if: faliure()
+      # THE NOTIFICATION LOOP: Push alert to Discord
+      - name: Send Discord Alert on Failure
+        if: failure() 
         run: |
           curl -H "Content-Type: application/json" \
           -d '{"content": "🚨 **CRITICAL SECURITY ALERT** 🚨\n**Repository:** mscarn02/SecureSentinel\n**Event:** Vulnerable Python Dependencies Detected by Trivy (SCA)!\n**Action Required:** Code deployment blocked. Check GitHub Actions logs for CVE details."}' \
