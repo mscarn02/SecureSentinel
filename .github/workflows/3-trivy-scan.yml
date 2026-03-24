@@ -1,0 +1,27 @@
+name: 3 - Dependency Shield (Trivy)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  scan-dependencies:
+    name: Software Composition Analysis (SCA)
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # THE SECURITY GATE: Running Trivy
+      - name: Run Trivy Vulnerability Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'          # Scans the file system for dependency files
+          scan-ref: 'src/'         # Tells Trivy to only look in our source code folder
+          format: 'table'          # Outputs the vulnerabilities in a readable terminal table
+          exit-code: '1'           # CRITICAL: If vulnerabilities are found, fail the pipeline
+          ignore-unfixed: true     # Only alert on vulnerabilities that actually have a patch available
+          severity: 'CRITICAL,HIGH' # Only break the build for severe flaws
