@@ -1,4 +1,4 @@
-#using vulnerable version of librarier intentionally
+#using vulnerable version of libraries intentionally
 
 requests==2.19.1
 urllib3==1.24.1
