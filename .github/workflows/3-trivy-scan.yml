@@ -25,3 +25,10 @@ jobs:
           exit-code: '1'           # CRITICAL: If vulnerabilities are found, fail the pipeline
           ignore-unfixed: true     # Only alert on vulnerabilities that actually have a patch available
           severity: 'CRITICAL,HIGH' # Only break the build for severe flaws
+
+      - name: Send Discord Alert on Faliure
+        if: faliure()
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d {"content": "🚨 **CRITICAL SECURITY ALERT** 🚨\n**Repository:** mscarn02/SecureSentinel\n**Event:** Vulnerable Python Dependencies Detected by Trivy (SCA)!\n**Action Required:** Code deployment blocked. Check GitHub Actions logs for CVE details."}' \
+          ${{ secrets.DISCORD_WEBHOOK }}

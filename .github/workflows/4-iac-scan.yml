@@ -21,5 +21,13 @@ jobs:
         with:
           directory: terraform/      # Only scan our IaC folder
           framework: terraform       # Tell Checkov what language to expect
-          quiet: false                # Keep logs clean: only show FAILED checks
+          quiet: false                
           soft_fail: false           # CRITICAL: Fail the pipeline if a violation is found
+
+      # THE NOTIFICATION LOOP: Push alert to Discord
+      - name: Send Discord Alert on Failure
+        if: failure() 
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d '{"content": "🚨 **CRITICAL SECURITY ALERT** 🚨\n**Repository:** mscarn02/SecureSentinel\n**Event:** Terraform Misconfiguration Detected by Checkov!\n**Action Required:** Infrastructure deployment blocked. Fix compliance violations before merging."}' \
+          ${{ secrets.DISCORD_WEBHOOK }}
