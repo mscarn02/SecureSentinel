@@ -1,0 +1,25 @@
+name: 4 - IaC Gatekeeper (Checkov)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  scan-infrastructure:
+    name: Terraform Misconfiguration Scan
+    runs-on: ubuntu-latest
+      
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # THE SECURITY GATE: Running Checkov
+      - name: Run Checkov Scanner
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: terraform/      # Only scan our IaC folder
+          framework: terraform       # Tell Checkov what language to expect
+          quiet: false                # Keep logs clean: only show FAILED checks
+          soft_fail: false           # CRITICAL: Fail the pipeline if a violation is found
